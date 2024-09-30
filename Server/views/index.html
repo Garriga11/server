@@ -1,0 +1,170 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Form</title>
+    <style>
+      /* General page styling */ 
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em 0;
+}
+
+h1, h2 {
+    font-weight: normal;
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+    padding: 2em;
+}
+
+.email-form, .inbox {
+    background-color: #fff;
+    padding: 2em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.email-form label, .email-form input, .email-form textarea, .email-form button {
+    display: block;
+    width: 100%;
+    margin-bottom: 1em;
+    padding: 0.5em;
+    font-size: 1em;
+}
+
+.email-form button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.email-form button:hover {
+    background-color: #555;
+}
+
+.inbox ul {
+    list-style: none;
+    padding: 0;
+}
+
+.inbox li {
+    margin-bottom: 1em;
+    padding: 1em;
+    background-color: #e9e9e9;
+    border-radius: 4px;
+}
+
+footer {
+    text-align: center;
+    padding: 1em;
+    background-color: #333;
+    color: #fff;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+} 
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Send an Email</h1>
+    </header>
+    
+    <main>
+        <section class="email-form">
+            <form action="/send" method="POST" id="emailForm">
+                <label for="to">To:</label>
+                <input type="email" id="to" name="to" required>
+                <br>
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+                <br>
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required></textarea>
+                <br>
+                <button type="submit" id="sendBtn">Send Email</button>
+            </form>
+        </section>
+        
+        <section class="inbox">
+            <h2>Your Sent Emails</h2>
+            <ul id="emails"></ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; G19 Programs</p>
+    </footer>
+
+<script>
+
+      // When the page loads
+      window.onload = function() {
+          // Get references to elements
+          const form = document.getElementById('emailForm');
+          const emailList = document.getElementById('emails');
+          const sendBtn = document.getElementById('sendBtn');
+      
+          // Add an event listener for the form submission
+          form.addEventListener('submit', function(event) {
+              event.preventDefault(); // Prevent form from submitting traditionally
+      
+              // Extract data from the form
+              const emailData = {
+                  to: document.getElementById('to').value,
+                  subject: document.getElementById('subject').value,
+                  message: document.getElementById('message').value
+              };
+      
+              // Send email data to the server using fetch (AJAX)
+              fetch('/send', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                  },
+                  body: new URLSearchParams(emailData).toString()
+              })
+              .then(response => {
+                  if (response.ok) {
+                      return response.text();
+                  } else {
+                      throw new Error('Email failed to send');
+                  }
+              })
+              .then(() => {
+                  // Add the sent email to the inbox dynamically
+                  const li = document.createElement('li');
+                  li.innerHTML = `<strong>To:</strong> ${emailData.to}<br>
+                                  <strong>Subject:</strong> ${emailData.subject}<br>
+                                  <strong>Message:</strong> ${emailData.message}`;
+                  emailList.appendChild(li);
+      
+                  // Clear the form fields after sending
+                  form.reset();
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+              });
+          });
+      };
+      
+      </script>
+
+</body>
+</html> 
+
